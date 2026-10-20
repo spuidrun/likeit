@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stepii 스테피 — 매일 한 걸음 러닝 챌린지</title>
+<meta name="description" content="스테피는 한 달 동안 매일 달리기를 인증하는 러닝 챌린지 앱입니다. 하루를 놓치면 낮잠에 들고, 친구가 깨워 주면 다시 이어 갑니다.">
+<meta property="og:title" content="Stepii 스테피 — 매일 한 걸음 러닝 챌린지">
+<meta property="og:description" content="한 달 동안 매일 달리기를 인증하세요. 하루를 놓쳐도 친구가 깨워 줍니다.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#F5FBF2">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* 앱(src/theme/tokens.ts)과 같은 색. 빨강은 쓰지 않고, 그림자는 아래로만 떨어집니다. */
+  :root{
+    --paper:#F5FBF2; --card:#FFFFFF; --line:#E3ECE5;
+    --ink:#1D2A22; --ink2:#5C6B61; --ink3:#9AA79F;
+    --green:#2DB46B; --green-deep:#1B8A4F; --green-ink:#0F5130; --green-soft:#E4F7E8;
+    --neon:#C6EE4E;
+    --orange:#FF8A2B; --orange-soft:#FFF0E2;
+    --r-md:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
+    line-height:1.7; letter-spacing:-0.01em; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{width:min(100% - 2rem, 56rem);margin-inline:auto}
+  a{color:inherit}
+  .num{font-family:Nunito,Pretendard,sans-serif;font-variant-numeric:tabular-nums}
+
+  /* 히어로 */
+  .hero{padding:4rem 0 3rem;display:grid;gap:2.5rem;align-items:center}
+  @media (min-width:760px){ .hero{grid-template-columns:1.2fr 1fr;padding:5rem 0 4rem} }
+  .kicker{display:inline-block;background:var(--green-soft);color:var(--green-ink);font-weight:700;font-size:.85rem;border-radius:999px;padding:.25rem .8rem}
+  h1{font-size:clamp(2rem,6vw,3rem);line-height:1.25;font-weight:800;letter-spacing:-0.03em;margin:1rem 0}
+  h1 em{font-style:normal;color:var(--green)}
+  .lead{font-size:1.05rem;color:var(--ink2);max-width:30rem}
+  .soon{margin-top:1.75rem;display:flex;gap:.6rem;flex-wrap:wrap}
+  .store{background:var(--ink);color:#fff;border-radius:14px;padding:.6rem 1rem;font-weight:700;font-size:.9rem;line-height:1.3}
+  .store small{display:block;font-weight:500;font-size:.72rem;opacity:.7}
+
+  /* 고리 — 앱 홈의 '인증 완료' 고리(위 연두 → 아래 초록) */
+  .ring-box{display:flex;justify-content:center}
+  .ring{width:min(70vw,260px);aspect-ratio:1;border-radius:50%;
+    background:linear-gradient(180deg,var(--neon),var(--green));
+    display:grid;place-items:center;padding:16px}
+  .ring-in{width:100%;height:100%;border-radius:50%;background:var(--paper);display:grid;place-items:center;text-align:center}
+  .ring-in b{display:block;font-family:Nunito,Pretendard,sans-serif;font-size:3.5rem;font-weight:900;color:var(--green-ink);line-height:1}
+  .ring-in span{color:var(--ink2);font-weight:700}
+
+  /* 섹션 */
+  section{padding:2.5rem 0}
+  h2{font-size:clamp(1.4rem,4vw,1.8rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:.4rem}
+  .sub{color:var(--ink2);margin-bottom:1.5rem}
+  .grid{display:grid;gap:1rem}
+  @media (min-width:640px){ .grid.two{grid-template-columns:1fr 1fr} .grid.three{grid-template-columns:repeat(3,1fr)} }
+  .card{background:var(--card);border:2px solid var(--line);border-bottom-width:6px;border-radius:var(--r-md);padding:1.25rem}
+  .card h3{font-size:1.05rem;font-weight:800;margin-bottom:.35rem}
+  .card p{color:var(--ink2);font-size:.95rem}
+  .step{font-family:Nunito,Pretendard,sans-serif;font-weight:900;color:var(--green);font-size:.85rem;letter-spacing:.04em}
+  .card.nap{background:var(--orange-soft);border-color:#FFE0C2}
+  .card.nap .step{color:var(--orange)}
+  ul.dots{list-style:none;margin-top:.5rem}
+  ul.dots li{position:relative;padding-left:1rem;color:var(--ink2);font-size:.92rem;margin:.2rem 0}
+  ul.dots li::before{content:"";position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--green)}
+  .card a{color:var(--green-ink);font-weight:700}
+
+  /* 푸터 */
+  footer{padding:3rem 0 4rem;margin-top:2rem;border-top:1px solid var(--line);font-size:.875rem;color:var(--ink2)}
+  .co{font-weight:800;color:var(--ink)}
+  .info{margin-top:.6rem;display:grid;gap:.15rem}
+  .legal{margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap}
+  .legal a{color:var(--ink);font-weight:700;text-decoration:none}
+  .legal a:hover{text-decoration:underline}
+  .copy{margin-top:1.5rem;color:var(--ink3);font-size:.8rem}
+</style>
+</head>
+<body>
+
+<main class="wrap">
+
+  <div class="hero">
+    <div>
+      <span class="kicker">러닝 챌린지 앱</span>
+      <h1>하루에 한 걸음,<br><em>한 달을 함께</em></h1>
+      <p class="lead">스테피는 한 달 동안 매일 달리기를 인증하는 러닝 챌린지입니다. 빠르게, 멀리 가지 않아도 괜찮아요. 오늘 나갔는지만 봅니다.</p>
+      <div class="soon">
+        <div class="store"><small>출시 예정</small>App Store</div>
+        <div class="store"><small>출시 예정</small>Google Play</div>
+      </div>
+    </div>
+    <div class="ring-box" aria-hidden="true">
+      <div class="ring"><div class="ring-in"><div><b class="num">17</b><span>일 연속</span></div></div></div>
+    </div>
+  </div>
+
+  <section>
+    <h2>규칙은 단순해요</h2>
+    <p class="sub">매달 새 시즌이 열리고, 그달 아무 날이나 참가할 수 있어요.</p>
+    <div class="grid two">
+      <div class="card">
+        <div class="step">01 · 참가</div>
+        <h3>참가한 날이 1일차</h3>
+        <p>매달 시즌이 새로 열려요. 달 중간에 들어와도 그날부터 시작이에요. 참가하면 배번호를 받아요.</p>
+      </div>
+      <div class="card">
+        <div class="step">02 · 인증</div>
+        <h3>매일 10분, 1km 이상</h3>
+        <p>그날 자정 전까지 한 번 달리면 돼요. 평균 페이스는 10분/km 안쪽(트레일은 15분)이면 돼요.</p>
+      </div>
+      <div class="card nap">
+        <div class="step">03 · 낮잠</div>
+        <h3>하루를 놓치면 낮잠</h3>
+        <p>인증을 놓친 날엔 잠들어요. 다음 날 자정까지 친구가 깨워 주거나 스스로 일어나면(한 달에 한 번) 연속 일수가 그대로 이어져요.</p>
+      </div>
+      <div class="card">
+        <div class="step">04 · 완주</div>
+        <h3>끝까지 가면 다음 달로</h3>
+        <p>그달 마지막 날까지 살아 있으면 다음 달 시즌으로 저절로 이어지고, 연속 일수와 배번호도 그대로 가져가요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>밖에서 뛰든, 안에서 뛰든</h2>
+    <p class="sub">날씨나 장소 때문에 끊기지 않도록 두 가지 방법을 모두 받아요.</p>
+    <div class="grid two">
+      <div class="card">
+        <h3>GPS 인증</h3>
+        <p>실외 러닝을 앱이 직접 잽니다.</p>
+        <ul class="dots">
+          <li>거리 · 시간 · 페이스 · 케이던스 · 고도</li>
+          <li>신호등에서 서면 자동 일시정지</li>
+          <li>끝나면 지도 위에 지나온 길</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>사진 인증</h3>
+        <p>트레드밀 계기판, 워치 · 다른 앱 화면도 괜찮아요.</p>
+        <ul class="dots">
+          <li>기록이 보이는 사진 한 장</li>
+          <li>기록 부분만 위아래로 잘라 올리기</li>
+          <li>시간과 거리는 직접 입력</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>혼자 버티지 않아도 돼요</h2>
+    <p class="sub">같은 달을 달리는 사람들이 곁에 있어요.</p>
+    <div class="grid three">
+      <div class="card">
+        <h3>주간 리그</h3>
+        <p>그 주에 처음 달리면 저절로 리그에 들어가요. 매주 월요일, 위쪽은 승급하고 아래쪽은 강등돼요.</p>
+      </div>
+      <div class="card">
+        <h3>친구 · 깨우기</h3>
+        <p>아직 안 달린 친구를 찔러 알려 주고, 잠든 친구는 깨워 줄 수 있어요.</p>
+      </div>
+      <div class="card">
+        <h3>커뮤니티</h3>
+        <p>달린 기록이 피드에 올라가요. 전체 · 친구 · 나만 보기 중에서 공개 범위를 고를 수 있어요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>내 위치는 지켜요</h2>
+    <div class="card">
+      <p>다른 사람에게 보이는 경로는 출발 · 도착 지점 200m를 가리고, 집 · 회사처럼 정해 둔 프라이버시 존 근처도 가려요. 위치는 달리는 동안에만 기록해요. 자세한 내용은 <a href="../privacy.html">개인정보처리방침</a>에 있어요.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <p class="co">(주)라이킷크리에이티브</p>
+  <div class="info">
+    <span>대표: 이재진</span>
+    <span>사업자등록번호: 574-88-00284</span>
+    <span>주소: 서울시 노원구 동일로204가길 34, 708</span>
+    <span>문의: contact@likeitcreative.com</span>
+  </div>
+  <nav class="legal">
+    <a href="../privacy.html">개인정보처리방침</a>
+    <a href="../account-deletion.html">계정 삭제 안내</a>
+  </nav>
+  <p class="copy">© 2026 LIKEIT CREATIVE Co., Ltd. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
