@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stepii 스테피 — 매일 한 걸음 러닝 챌린지</title>
+<meta name="description" content="스테피는 한 달 동안 매일 달리기를 인증하는 러닝 챌린지 앱입니다. 하루를 놓치면 낮잠에 들고, 친구가 깨워 주면 다시 이어 갑니다.">
+<meta property="og:title" content="Stepii 스테피 — 매일 한 걸음 러닝 챌린지">
+<meta property="og:description" content="한 달 동안 매일 달리기를 인증하세요. 하루를 놓쳐도 친구가 깨워 줍니다.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#F5FBF2">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Saira:wght@600&display=swap" rel="stylesheet">
+<style>
+  /* 앱(src/theme/tokens.ts)과 같은 색. 빨강은 쓰지 않고, 그림자는 아래로만 떨어집니다. */
+  :root{
+    --paper:#F5FBF2; --card:#FFFFFF; --line:#E3ECE5;
+    --ink:#1D2A22; --ink2:#5C6B61; --ink3:#9AA79F;
+    --green:#2DB46B; --green-deep:#1B8A4F; --green-ink:#0F5130; --green-soft:#E4F7E8;
+    --neon:#C6EE4E;
+    --orange:#FF8A2B; --orange-soft:#FFF0E2;
+    --r-md:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
+    line-height:1.7; letter-spacing:-0.01em; -webkit-font-smoothing:antialiased;
+    word-break:keep-all; overflow-wrap:anywhere;   /* 한글이 단어 중간에서 끊기지 않게 */
+  }
+  .wrap{width:min(100% - 2rem, 60rem);margin-inline:auto}
+  a{color:inherit}
+  .num{font-family:Nunito,Pretendard,sans-serif;font-variant-numeric:tabular-nums}
+
+  /* 히어로 */
+  .hero{padding:4rem 0 3rem;display:grid;gap:2.5rem;align-items:center}
+  @media (min-width:760px){ .hero{grid-template-columns:1.2fr 1fr;padding:5rem 0 4rem} }
+  /* 앱 로그인 화면과 같은 워드마크 (원본 runvival2/assets/logos/wordmark.png, 1498×546) */
+  .logo{display:block;height:44px;width:auto}
+  h1{font-size:clamp(2rem,6vw,3rem);line-height:1.25;font-weight:800;letter-spacing:-0.03em;margin:1rem 0}
+  h1 em{font-style:normal;color:var(--green)}
+  .lead{font-size:1.05rem;color:var(--ink2);max-width:30rem}
+  .soon{margin-top:1.75rem;display:flex;gap:.6rem;flex-wrap:wrap}
+  .store{background:var(--ink);color:#fff;border-radius:14px;padding:.6rem 1rem;font-weight:700;font-size:.9rem;line-height:1.3}
+  .store small{display:block;font-weight:500;font-size:.72rem;opacity:.7}
+
+  /* 폰 화면 — 앱 데모에서 찍은 화면 (screens/*.webp, 780×1688) */
+  .phone{width:min(68vw,260px);aspect-ratio:780/1688;border-radius:34px;border:7px solid var(--ink);
+    overflow:hidden;background:var(--paper);box-shadow:0 10px 0 -2px rgba(29,42,34,.12)}
+  .phone img{display:block;width:100%;height:100%;object-fit:cover}
+  .phones{display:flex;justify-content:center;gap:1rem}
+  /* 두 대를 나란히 — 칸 폭(약 456px) 안에 들어가게 */
+  .phones.pair .phone{width:min(42vw,200px);border-width:6px;border-radius:30px}
+  .hero .phones{justify-content:center}
+
+  /* 생존자 수 캡처 위에 얹는 숫자 — 자리 · 크기는 캡처(390×844 화면)에서 잰 값의 비율.
+     cqw 는 폰 화면 폭 기준이라 폰이 작아져도 같이 줄어듭니다 */
+  .phone.live{position:relative;container-type:inline-size}
+  .sv-num{position:absolute;right:44.56%;top:17.54%;font-family:Nunito,Pretendard,sans-serif;font-weight:800;
+    font-size:14.36cqw;line-height:1.0714;color:#0F5130;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .sv-rate{position:absolute;left:50%;top:25.59%;transform:translateX(-50%);font-weight:700;
+    font-size:3.333cqw;line-height:1.154;color:#5C6B61;white-space:nowrap;font-variant-numeric:tabular-nums}
+  /* 연속 일수 '13' (앱 streak.tsx count: 56 · 900 · orangeDeep) */
+  .st-num{position:absolute;right:47.68%;top:18.25%;font-family:Nunito,Pretendard,sans-serif;font-weight:800;
+    font-size:14.36cqw;line-height:1.0714;color:#E5691A;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+  /* 랭킹 — 피코가 11위(승급선 아래)에서 1위까지 올라갑니다. 열 명을 차례로 제치고, 제친 사람은 한 칸씩
+     내려가며 순위 숫자가 바뀝니다(b → a). 목록은 피코를 따라 맨 위까지 흘러갑니다.
+     바탕은 목록 구역을 비운 랭킹 화면, 목록 창(.rwin)은 캡처(390×844)의 목록 자리(위 214 · 높이 560).
+     줄 조각은 높이 72(카드 64 + 그림자), 승급선 48. 자리는 스크립트가 목록 좌표로 놓습니다.
+     기본 모습은 끝난 상태(1위) — 스크립트 · 움직임이 없을 때 */
+  .phone.rank{position:relative}
+  .rwin{position:absolute;left:0;top:25.355%;width:100%;height:66.351%;overflow:hidden}
+  .rw{position:absolute;left:0;width:100%;height:12.857%}
+  .rw.line{height:8.571%}
+  .rw img{position:absolute;inset:0;width:100%;height:100%}
+  .rw.piko{z-index:2}
+  .phone.rank{container-type:inline-size}
+  /* 피코 줄 위 순위 · 점수 (앱 LeagueStanding rank 15 · ink3 / pointsMe 18 · greenDeep, Nunito 900) */
+  .rw .rk-n,.rw .rk-s{position:absolute;font-family:Nunito,Pretendard,sans-serif;font-weight:900;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .rw .rk-n{left:15.385%;top:30.56%;transform:translateX(-50%);font-size:3.846cqw;line-height:1.333;color:#9AA79F}
+  .rw .rk-s{right:17.57%;top:26.39%;font-size:4.872cqw;line-height:1.368;color:#1B8A4F}
+
+  /* 러닝 — 튜토리얼(RunDemo)처럼 시계를 빨리 감아 10:20 · 1.05km · 9'50'' 에서 멈추고,
+     테두리가 10분까지 차오르고 '10분 이상' → '평균 페이스' 체크 → '인증 조건 충족!' 이 뜹니다.
+     바탕은 갓 출발한 화면(숫자 비움), 테두리 · 체크 · 배지는 다 찬 화면에서 잘라 얹은 것.
+     자리 · 크기는 캡처(390×844)에서 잰 값의 비율. 기본 모습은 끝난 상태(스크립트 · 움직임 없을 때) */
+  .phone.run{position:relative;container-type:inline-size}
+  .rn{position:absolute;font-family:Saira,Nunito,sans-serif;font-weight:600;color:#1D2A22;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .rn.time{left:50%;top:40.98%;transform:translateX(-50%);font-size:10.77cqw;line-height:1.262;letter-spacing:.513cqw}
+  .rn.dist{right:60.78%;top:51.41%;font-size:8.205cqw;line-height:1.25;letter-spacing:.256cqw}
+  .rn.pace{left:66.91%;top:52.12%;transform:translateX(-50%);font-size:6.667cqw;line-height:1.269;letter-spacing:.256cqw}
+  .rn.avg{left:50%;top:61.95%;transform:translateX(-50%);font-size:9.231cqw;line-height:1.25;letter-spacing:.256cqw}
+  .rp{position:absolute;display:block}
+  .rp.ring{left:8.846%;top:33.257%;width:82.308%;height:38.033%;--a:360deg;
+    -webkit-mask-image:conic-gradient(#000 var(--a),transparent 0);mask-image:conic-gradient(#000 var(--a),transparent 0)}
+  .rp.chip1{left:14.415%;top:72.582%;width:25.228%;height:4.028%}
+  .rp.chip2{left:40.925%;top:72.582%;width:44.659%;height:4.028%}
+  .rp.badge{left:30.597%;top:77.381%;width:38.806%;height:5.45%}
+  .rp.chip1,.rp.chip2{transition:opacity .25s}
+  .rp.badge{transition:opacity .2s,transform .45s cubic-bezier(.3,1.6,.5,1)}
+  .run.ready .rp.chip1,.run.ready .rp.chip2{opacity:0}
+  .run.ready .rp.badge{opacity:0;transform:scale(.7)}
+  .run.ready .rp.on{opacity:1;transform:none}
+
+  /* 화면 + 설명 한 줄 */
+  .feature{display:grid;gap:2rem;align-items:center;padding:3rem 0}
+  @media (min-width:760px){
+    .feature{grid-template-columns:1fr 1fr;gap:3rem}
+    .feature.flip .shot{order:2}
+  }
+  .feature + .feature{border-top:1px solid var(--line)}
+  .tag{display:inline-block;background:var(--green-soft);color:var(--green-ink);font-weight:800;font-size:.8rem;border-radius:999px;padding:.2rem .75rem;margin-bottom:.75rem}
+  .tag.hot{background:var(--neon);color:var(--green-ink)}
+  .feature h2{font-size:clamp(1.5rem,4.5vw,2rem)}
+  .feature p{color:var(--ink2);margin-top:.5rem}
+  .big{display:flex;gap:1.5rem;margin-top:1.25rem;flex-wrap:wrap}
+  .big div{background:var(--card);border:2px solid var(--line);border-bottom-width:6px;border-radius:var(--r-md);padding:.75rem 1rem;min-width:8rem}
+  .big b{display:block;font-family:Nunito,Pretendard,sans-serif;font-size:1.6rem;font-weight:900;color:var(--green-ink);line-height:1.2}
+  .big span{font-size:.85rem;color:var(--ink2);font-weight:700}
+  .note{font-size:.8rem;color:var(--ink3);margin-top:1rem}
+
+  /* 섹션 */
+  section{padding:2.5rem 0}
+  h2{font-size:clamp(1.4rem,4vw,1.8rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:.4rem}
+  .sub{color:var(--ink2);margin-bottom:1.5rem}
+  .grid{display:grid;gap:1rem}
+  @media (min-width:640px){ .grid.two{grid-template-columns:1fr 1fr} .grid.three{grid-template-columns:repeat(3,1fr)} }
+  .card{background:var(--card);border:2px solid var(--line);border-bottom-width:6px;border-radius:var(--r-md);padding:1.25rem}
+  .card h3{font-size:1.05rem;font-weight:800;margin-bottom:.35rem}
+  .card p{color:var(--ink2);font-size:.95rem}
+  .step{font-family:Nunito,Pretendard,sans-serif;font-weight:900;color:var(--green);font-size:.85rem;letter-spacing:.04em}
+  .card.nap{background:var(--orange-soft);border-color:#FFE0C2}
+  .card.nap .step{color:var(--orange)}
+  ul.dots{list-style:none;margin-top:.75rem}
+  ul.dots li{position:relative;padding-left:1rem;color:var(--ink2);font-size:.95rem;margin:.25rem 0}
+  ul.dots li::before{content:"";position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--green)}
+  .card a{color:var(--green-ink);font-weight:700}
+
+  /* 푸터 */
+  footer{padding:3rem 0 4rem;margin-top:2rem;border-top:1px solid var(--line);font-size:.875rem;color:var(--ink2)}
+  .co{font-weight:800;color:var(--ink)}
+  .info{margin-top:.6rem;display:grid;gap:.15rem}
+  .legal{margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap}
+  .legal a{color:var(--ink);font-weight:700;text-decoration:none}
+  .legal a:hover{text-decoration:underline}
+  .copy{margin-top:1.5rem;color:var(--ink3);font-size:.8rem}
+</style>
+</head>
+<body>
+
+<main class="wrap">
+
+  <div class="hero">
+    <div>
+      <img class="logo" src="logo.png" alt="Stepii" width="121" height="44">
+      <h1>매일 10분,<br><em>꾸준히 달리는 습관</em></h1>
+      <p class="lead">하루 10분 달리기를 매일 이어 가는 러닝 앱이에요. 매달 새로운 시즌에서 몇 명이 끝까지 살아남는지 지켜보고, 연속일수를 기록하세요.</p>
+      <div class="soon">
+        <div class="store"><small>출시 예정</small>App Store</div>
+        <div class="store"><small>출시 예정</small>Google Play</div>
+      </div>
+    </div>
+    <div class="phones">
+      <div class="phone"><img src="screens/home.webp" alt="홈 화면 — 오늘 생존까지 남은 시간, 배번호, 생존하기 버튼" width="780" height="1688"></div>
+    </div>
+  </div>
+
+  <!-- 순서: 생존자 수 → 낮잠(놓쳐도 괜찮다) → 랭킹 → 인증 → 기록 → 규칙 요약 -->
+  <div class="feature">
+    <div class="shot phones">
+      <div class="phone live"><img src="screens/survivors.webp" alt="생존자 수 화면 — 1,000명 중 850명 생존, 날마다 줄어드는 생존자 그래프" width="780" height="1688" loading="lazy">
+        <!-- 캡처의 숫자 자리는 비워 두고, 여기서 0 부터 올립니다 -->
+        <b class="sv-num" data-count="850" aria-hidden="true">850</b>
+        <span class="sv-rate" data-count="85" data-decimals="1" data-prefix="생존율 " data-suffix="%" aria-hidden="true">생존율 85.0%</span>
+      </div>
+    </div>
+    <div>
+      <span class="tag hot">생존자 수</span>
+      <h2>오늘, 몇 명이 살아남았을까?</h2>
+      <p>같은 달 시즌을 함께 시작한 사람들 중 아직 살아 있는 사람이 몇 명인지 매일 보여 줘요. 하루하루 줄어드는 숫자 속에서 내가 아직 남아 있다는 게 다음 날 다시 나가게 만들어요.</p>
+      <div class="big">
+        <div><b class="num">850</b><span>/ 1,000명 생존</span></div>
+        <div><b class="num">85%</b><span>생존율</span></div>
+      </div>
+      <ul class="dots">
+        <li>날짜별 생존자 수 그래프와 어제 탈락한 사람 수</li>
+      </ul>
+      <p class="note">화면의 숫자는 예시예요.</p>
+    </div>
+  </div>
+
+  <div class="feature flip">
+    <div class="shot phones">
+      <div class="phone live"><img src="screens/streak.webp" alt="연속 일수 화면 — 13일 연속, 달력에 달린 날과 낮잠에서 깬 날" width="780" height="1688" loading="lazy">
+        <b class="st-num" data-count="13" aria-hidden="true">13</b>
+      </div>
+    </div>
+    <div>
+      <span class="tag">연속 일수 · 깨우기</span>
+      <h2>하루 놓쳐도 괜찮아요</h2>
+      <p>인증을 놓친 날엔 탈락 대신 낮잠에 들어요. 다음 날 자정까지 깨어나면 연속 일수가 그대로 이어져요. 깨어나는 방법은 두 가지예요.</p>
+      <ul class="dots">
+        <li>스스로 깨우기권 쓰기</li>
+        <li>친구가 깨워 주기</li>
+      </ul>
+      <p>한 달에 두 번까지 깨어날 수 있어요.</p>
+    </div>
+  </div>
+
+  <div class="feature">
+    <div class="shot phones">
+      <div class="phone rank"><img src="screens/rank2-base.webp" alt="랭킹 화면 — 피코가 11위에서 1위로 올라감" width="780" height="1688" loading="lazy">
+        <div class="rwin" aria-hidden="true"></div>
+      </div>
+    </div>
+    <div>
+      <span class="tag hot">랭킹</span>
+      <h2>이번 주, 승급 도전!</h2>
+      <p>러닝 기록이 생기면 자동으로 랭킹에 참여해요 . 매일 달린 날과 거리로 점수가 쌓여요</p>
+      <ul class="dots">
+        <li>매주 월요일 0시 초기화</li>
+        <li>친구와 우리 동네 러너들의 순위도 볼 수 있어요 </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="feature flip">
+    <div class="shot phones pair">
+      <div class="phone run"><img src="screens/run-base.webp" alt="GPS 러닝 화면 — 10분 20초 · 1.05km 를 달려 인증 조건 충족" width="780" height="1688" loading="lazy">
+        <img class="rp ring" src="screens/run-ring.webp" alt="" aria-hidden="true">
+        <span class="rn time" aria-hidden="true">10:20</span>
+        <span class="rn dist" aria-hidden="true">1.05</span>
+        <span class="rn pace" aria-hidden="true">9'50''</span>
+        <span class="rn avg" aria-hidden="true">9'50''</span>
+        <img class="rp chip1" src="screens/run-chip1.webp" alt="" aria-hidden="true">
+        <img class="rp chip2" src="screens/run-chip2.webp" alt="" aria-hidden="true">
+        <img class="rp badge" src="screens/run-badge.webp" alt="" aria-hidden="true">
+      </div>
+      <div class="phone"><img src="screens/photo.webp" alt="사진 인증 화면 — 기록 사진과 시간, 거리 입력" width="780" height="1688" loading="lazy"></div>
+    </div>
+    <div>
+      <span class="tag">인증</span>
+      <h2>밖에서 뛰든, 안에서 뛰든</h2>
+      <p>날씨나 장소 때문에 끊기지 않도록 두 가지 방법을 모두 받아요.</p>
+      <ul class="dots">
+        <li><b>GPS 인증</b> — 거리 · 시간 · 페이스 · 케이던스 · 고도 측정</li>
+        <li><b>사진 인증</b> — 트레드밀 계기판, 워치 · 다른 앱 러닝 기록 사진 한 장과 시간 · 거리 입력</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="feature">
+    <div class="shot phones pair">
+      <div class="phone"><img src="screens/record.webp" alt="내 기록 화면 — 이달의 거리, 시간, 달린 날 달력" width="780" height="1688" loading="lazy"></div>
+      <div class="phone"><img src="screens/feed.webp" alt="피드 화면 — 다른 사람의 러닝 기록과 경로" width="780" height="1688" loading="lazy"></div>
+    </div>
+    <div>
+      <span class="tag">기록 · 피드</span>
+      <h2>달린 날을 한눈에</h2>
+      <p>이달의 거리와 달린 날을 보고, 친구와 다른 러너들의 기록도 피드에서 함께 봐요.</p>
+    </div>
+  </div>
+
+  <section>
+    <h2>규칙은 간단해요</h2>
+    <div class="grid two">
+      <div class="card">
+        <div class="step">01 · 참가</div>
+        <h3>시즌 참가</h3>
+        <p>매월 1일 새로운 시즌이 열리고 중간에 참가해도 시작할 수 있어요. 시즌에 참가해서 배번호를 뽑고 연속일수도 쌓아보세요</p>
+      </div>
+      <div class="card">
+        <div class="step">02 · 인증</div>
+        <h3>매일 10분 달리기</h3>
+        <p>자정 전까지 딱 10분만 달리면 돼요. (평균 페이스는 10'00'/km 이내 트레일러닝 20'00''/km 이내)</p>
+      </div>
+      <div class="card nap">
+        <div class="step">03 · 낮잠</div>
+        <h3>하루를 놓치면 낮잠</h3>
+        <p>인증을 놓친 날엔 낮잠에 들어요. 깨우기권이나 친구 덕분에 깨어나면 연속 일수가 이어져요.</p>
+      </div>
+      <div class="card">
+        <div class="step">04 · 완주</div>
+        <h3>끝까지 가면 다음 달로</h3>
+        <p>시즌 마지막 날까지 살아 있으면 누를 것 없이 다음 달 시즌으로 이어지고, 연속 일수와 배번호도 그대로 가져가요. 낮잠에 들었다면 다음 달을 미리 신청해 두고, 그동안은 자유 달리기로 뛰면 돼요.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <p class="co">주식회사 라이킷크리에이티브</p>
+  <div class="info">
+    <span>대표: 이재진</span>
+    <span>사업자등록번호: 574-88-00284</span>
+    <span>주소: 서울특별시 노원구 동일로204가길 34, 1동 708호(중계동, 씨앤미복합빌딩)</span>
+    <span>문의: contact@likeitcreative.com</span>
+    <span>전화: 010-3338-8945</span>
+  </div>
+  <nav class="legal">
+    <a href="terms.html">서비스 이용약관</a>
+    <a href="privacy.html">개인정보처리방침</a>
+    <a href="location-terms.html">위치기반서비스 이용약관</a>
+    <a href="account-deletion.html">계정 삭제 안내</a>
+  </nav>
+  <p class="copy">© 2026 LIKEIT CREATIVE Co., Ltd. All rights reserved.</p>
+</footer>
+
+<script>
+  /* 캡처 애니메이션 — 생존자 수(850 · 85.0%) · 연속 일수(13) 숫자 올리기, 랭킹 피코 승급.
+     폰 가운데가 화면 가운데 띠(위아래 25%를 뺀 곳)에 들어왔을 때 하나씩 재생합니다.
+     (2026-10-26 사용자: 반만 보여도 돌아서, 새로고침하면 아래 것까지 한꺼번에 돌았음)
+     새로고침하면 맨 위에서 시작합니다 — 이전 스크롤 자리로 바로 뛰면 지나간 것까지 돌기 때문.
+     움직임 줄이기를 켠 사람과 스크립트가 없는 경우엔 최종 모습 그대로. */
+  (function () {
+    // 움직임 줄이기 — 랭킹 목록은 그려야 하므로(끝난 모습) 바로 끝내지 않고 재생만 건너뜁니다
+    var still = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+    var MS = 1600;
+    function show(el, v) {
+      var d = Number(el.dataset.decimals || 0);
+      var s = d ? v.toFixed(d) : Math.round(v).toLocaleString('ko-KR');
+      el.textContent = (el.dataset.prefix || '') + s + (el.dataset.suffix || '');
+    }
+    function countUp(box) {
+      var els = box.querySelectorAll('[data-count]'), t0 = null;
+      function step(t) {
+        if (t0 === null) t0 = t;
+        var k = Math.min(1, (t - t0) / MS), e = 1 - Math.pow(1 - k, 3);
+        els.forEach(function (el) { show(el, Number(el.dataset.count) * e); });
+        if (k < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    var waiting = [];
+    document.querySelectorAll('.phone.live').forEach(function (box) {
+      if (still) return;
+      box.querySelectorAll('[data-count]').forEach(function (el) { show(el, 0); });
+      waiting.push({ box: box, play: countUp });
+    });
+    /* 랭킹 11위 → 1위. 목록 좌표(스크롤 0 기준 px): k 번째 칸 조각의 위 = 2 + 74k (+ 승급선 50, 9번째부터).
+       p = 피코의 칸(10 → 0), s = 목록 스크롤(542 → 0). 다른 사람 j(0~9)는 피코가 지나가면 j → j+1 칸으로,
+       순위 숫자는 b → a. j 10 이상은 처음부터 피코 아래(칸 j+1). 피코 조각은 마지막 한 칸에서 11위 → 1위 */
+    var RANK_MS = 2600, P0 = 10, S0 = 542, WIN = 560;
+    document.querySelectorAll('.phone.rank').forEach(function (box) {
+      var win = box.querySelector('.rwin'), rows = [];
+      function piece(cls, b, a) {
+        var d = document.createElement('div'); d.className = 'rw ' + cls;
+        d.innerHTML = '<img class="b" src="screens/' + b + '.webp" alt="">' + (a ? '<img class="a" src="screens/' + a + '.webp" alt="">' : '');
+        win.appendChild(d); return d;
+      }
+      var line = piece('line', 'rank2-line');
+      for (var j = 0; j < 14; j++) rows.push(j <= 9 ? piece('o', 'rank2-o' + j + '-b', 'rank2-o' + j + '-a') : piece('o', 'rank2-o' + j));
+      var piko = piece('piko', 'rank2-piko-b', 'rank2-piko-a');
+      // 피코 줄의 순위 · 점수는 글자로 얹습니다 (조각 b 는 그 자리를 비워 둠). 1위에 닿으면 조각 a(금메달 · 1,560)로
+      var pa = piko.lastChild, rn = document.createElement('span'), rs = document.createElement('span');
+      rn.className = 'rk-n'; rs.className = 'rk-s'; piko.insertBefore(rn, pa); piko.insertBefore(rs, pa);
+      var clamp = function (v) { return Math.max(0, Math.min(1, v)); };
+      var Y = function (k) { return 2 + 74 * k + 50 * clamp(k - 8); };
+      var put = function (el, y) { el.style.top = (y / WIN * 100) + '%'; };
+      function frame(e) {
+        var p = P0 * (1 - e), s = S0 * (1 - e);
+        put(line, 670 - s);
+        rows.forEach(function (el, j) {
+          var k = j <= 9 ? clamp(j + 1 - p) : 1;
+          put(el, Y(j + k) - s);
+          if (j <= 9) el.lastChild.style.opacity = k;
+        });
+        put(piko, Y(p) - s);
+        var a = clamp(1 - 2 * p);
+        pa.style.opacity = a;
+        rn.textContent = String(Math.round(p) + 1);
+        rs.textContent = Math.round(820 + 740 * e).toLocaleString('ko-KR');
+        rn.style.opacity = rs.style.opacity = 1 - a;
+        piko.style.transform = 'scale(' + (1 + 0.05 * Math.sin(Math.PI * e)) + ')';
+      }
+      frame(1);
+      if (still) return;
+      frame(0);
+      waiting.push({ box: box, play: function () {
+        var t0 = null;
+        function step(t) {
+          if (t0 === null) t0 = t;
+          var u = Math.min(1, (t - t0) / RANK_MS), e = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+          frame(e);
+          if (u < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      } });
+    });
+
+    /* 러닝 빨리 감기 — 튜토리얼 RunDemo 값에서 속도만 2배(2026-10-26 사용자): 2.1초 동안 0 → 10:20(620초) · 1.05km,
+       페이스 9'50'', 10분을 넘으면 '10분 이상', 다 감고 0.35초 뒤 '평균 페이스' · '인증 조건 충족!' */
+    var REPLAY = 2100, END_S = 620, END_M = 1050, GAP = 350, PACE = "9'50''", NONE = "--'--''";
+    document.querySelectorAll('.phone.run').forEach(function (box) {
+      if (still) return;
+      var q = function (s) { return box.querySelector(s); };
+      var time = q('.rn.time'), dist = q('.rn.dist'), pace = q('.rn.pace'), avg = q('.rn.avg'), ring = q('.rp.ring');
+      var chip1 = q('.rp.chip1'), chip2 = q('.rp.chip2'), badge = q('.rp.badge');
+      function frame(s) {
+        time.textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+        dist.textContent = (END_M * s / END_S / 1000).toFixed(2);
+        pace.textContent = avg.textContent = s > 0 ? PACE : NONE;
+        ring.style.setProperty('--a', (Math.min(1, s / 600) * 360) + 'deg');
+        chip1.classList.toggle('on', s >= 600);
+      }
+      box.classList.add('ready');
+      frame(0);
+      waiting.push({ box: box, play: function () {
+        var t0 = null;
+        function step(t) {
+          if (t0 === null) t0 = t;
+          var u = Math.min(1, (t - t0) / REPLAY);
+          frame(Math.round(END_S * u));
+          if (u < 1) requestAnimationFrame(step);
+          else setTimeout(function () { chip2.classList.add('on'); badge.classList.add('on'); }, GAP);
+        }
+        requestAnimationFrame(step);
+      } });
+    });
+
+    var ticking = false;
+    function check() {
+      ticking = false;
+      var vh = window.innerHeight;
+      waiting = waiting.filter(function (w) {
+        var r = w.box.getBoundingClientRect(), mid = (r.top + r.bottom) / 2;
+        if (mid > vh * 0.25 && mid < vh * 0.75) { w.play(w.box); return false; }
+        return true;
+      });
+      if (!waiting.length) {
+        removeEventListener('scroll', onScroll);
+        removeEventListener('resize', onScroll);
+      }
+    }
+    function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(check); } }
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll);
+    onScroll();
+  })();
+</script>
+
+</body>
+</html>
